@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .glass-panel {
+    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+  }
+
+  .dark .glass-panel {
+    @apply bg-gray-800/60 border-gray-700/50;
+  }
+
+  .glass-input {
+    @apply bg-white/50 border border-gray-200 outline-none transition-all duration-300 backdrop-blur-sm focus:ring-2 focus:ring-blue-500/50;
+  }
+
+  .dark .glass-input {
+    @apply bg-gray-900/50 border-gray-700;
+  }
+
+  .btn-gradient {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0;
+  }
+}
+
+body {
+  @apply bg-gray-50 text-gray-900 transition-colors duration-300;
+}
+
+.dark body {
+  @apply bg-gray-950 text-gray-100;
+}
