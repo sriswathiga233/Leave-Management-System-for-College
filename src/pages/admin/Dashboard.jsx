@@ -1,7 +1,7 @@
+
 import { useEffect, useState } from "react";
-import { getLeaves, getUsers } from "../../utils/mockDb";
 import { motion } from "framer-motion";
-import { Users, FileText, CheckCircle, XCircle } from "lucide-react";
+import { Users, FileText, CheckCircle } from "lucide-react";
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <motion.div
@@ -10,11 +10,22 @@ const StatCard = ({ title, value, icon: Icon, color }) => (
     >
         <div className="flex items-center justify-between">
             <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{title}</p>
-                <p className="text-3xl font-bold mt-2 text-gray-900 dark:text-white">{value}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                    {title}
+                </p>
+                <p className="text-3xl font-bold mt-2 text-gray-900 dark:text-white">
+                    {value}
+                </p>
             </div>
-            <div className={`p-3 rounded-full bg-opacity-10 ${color.replace("border-", "bg-").replace("-500", "-100")}`}>
-                <Icon className={`w-8 h-8 ${color.replace("border-", "text-")}`} />
+
+            <div
+                className={`p-3 rounded-full bg-opacity-10 ${color
+                    .replace("border-", "bg-")
+                    .replace("-500", "-100")}`}
+            >
+                <Icon
+                    className={`w-8 h-8 ${color.replace("border-", "text-")}`}
+                />
             </div>
         </div>
     </motion.div>
@@ -31,21 +42,30 @@ const AdminDashboard = () => {
     });
 
     useEffect(() => {
-        const users = getUsers();
-        const leaves = getLeaves();
-        setStats({
-            totalUsers: users.length,
-            totalStudents: users.filter(u => u.role === 'student').length,
-            totalFaculty: users.filter(u => u.role === 'faculty').length,
-            totalLeaves: leaves.length,
-            approved: leaves.filter(l => l.status === 'Approved').length,
-            pending: leaves.filter(l => l.status === 'Pending').length,
-        });
+        fetch("https://leave-management-system-for-college.onrender.com/leaves")
+            .then((res) => res.json())
+            .then((data) => {
+                setStats({
+                    totalUsers: data.length,
+                    totalStudents: data.length,
+                    totalFaculty: 0,
+                    totalLeaves: data.length,
+                    approved: data.filter(
+                        (l) => l.status === "Approved"
+                    ).length,
+                    pending: data.filter(
+                        (l) => l.status === "Pending"
+                    ).length,
+                });
+            })
+            .catch((err) => console.error(err));
     }, []);
 
     return (
         <div className="space-y-6">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                Admin Dashboard
+            </h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <StatCard
@@ -54,12 +74,14 @@ const AdminDashboard = () => {
                     icon={Users}
                     color="border-purple-500"
                 />
+
                 <StatCard
                     title="Total Leaves"
                     value={stats.totalLeaves}
                     icon={FileText}
                     color="border-blue-500"
                 />
+
                 <StatCard
                     title="Pending Requests"
                     value={stats.pending}
@@ -70,22 +92,59 @@ const AdminDashboard = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                 <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-                    <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">User Distribution</h2>
+                    <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                        Leave Statistics
+                    </h2>
+
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
-                            <span className="text-gray-600 dark:text-gray-400">Students</span>
-                            <span className="font-bold text-gray-900 dark:text-white">{stats.totalStudents}</span>
+                            <span className="text-gray-600 dark:text-gray-400">
+                                Approved
+                            </span>
+
+                            <span className="font-bold text-gray-900 dark:text-white">
+                                {stats.approved}
+                            </span>
                         </div>
+
                         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                            <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${(stats.totalStudents / stats.totalUsers) * 100}%` }}></div>
+                            <div
+                                className="bg-green-600 h-2.5 rounded-full"
+                                style={{
+                                    width: `${
+                                        stats.totalLeaves
+                                            ? (stats.approved /
+                                                  stats.totalLeaves) *
+                                              100
+                                            : 0
+                                    }%`,
+                                }}
+                            ></div>
                         </div>
 
                         <div className="flex justify-between items-center">
-                            <span className="text-gray-600 dark:text-gray-400">Faculty</span>
-                            <span className="font-bold text-gray-900 dark:text-white">{stats.totalFaculty}</span>
+                            <span className="text-gray-600 dark:text-gray-400">
+                                Pending
+                            </span>
+
+                            <span className="font-bold text-gray-900 dark:text-white">
+                                {stats.pending}
+                            </span>
                         </div>
+
                         <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
-                            <div className="bg-green-600 h-2.5 rounded-full" style={{ width: `${(stats.totalFaculty / stats.totalUsers) * 100}%` }}></div>
+                            <div
+                                className="bg-yellow-500 h-2.5 rounded-full"
+                                style={{
+                                    width: `${
+                                        stats.totalLeaves
+                                            ? (stats.pending /
+                                                  stats.totalLeaves) *
+                                              100
+                                            : 0
+                                    }%`,
+                                }}
+                            ></div>
                         </div>
                     </div>
                 </div>
